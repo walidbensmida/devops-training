@@ -16,11 +16,12 @@ import org.springframework.security.config.Customizer;
 @Configuration
 public class SecurityConfig {
 
-    @Value("${username}")
-    private String username;
+    @Value("${app_login}")
+    private String appLogin;
 
-    @Value("${password}")
-    private String password;
+    @Value("${app_password}")
+    private String appPassword;
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -39,8 +40,8 @@ public class SecurityConfig {
     public UserDetailsService users() {
         return new InMemoryUserDetailsManager(
                 User.builder()
-                        .username(username)
-                        .password(passwordEncoder().encode(password))
+                        .username(appLogin)
+                        .password(passwordEncoder().encode(appPassword))
                         .roles("USER")
                         .build()
         );
@@ -52,8 +53,8 @@ public class SecurityConfig {
     }
     @PostConstruct
     public void init() {
-        System.out.println("Username from Vault: " + username);
-        System.out.println("Password from Vault: " + password);
+        System.out.println("Username from Vault: " + appLogin);
+        System.out.println("Password from Vault: " + appPassword);
     }
 
 }

@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-training
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devops-training
+  template:
+    metadata:
+      labels:
+        app: devops-training
+    spec:
+      containers:
+        - name: devops-training
+          image: walidbensmida/devops-training:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "default"

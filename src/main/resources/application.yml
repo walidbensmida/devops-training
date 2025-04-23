@@ -8,8 +8,8 @@ spring:
     import: vault://
   cloud:
     vault:
-      uri: http://127.0.0.1:8200
-      token: SECRET
+      uri: http://host.docker.internal:8200
+      token: _TOKEN
       kv:
         enabled: true
         backend: secret
