@@ -1,0 +1,18 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: devops-training
+  config:
+    import: vault://
+  cloud:
+    vault:
+      uri: http://127.0.0.1:8200
+      token: SECRET
+      kv:
+        enabled: true
+        backend: secret
+        application-name: app
+      ssl:
+        verify: false
