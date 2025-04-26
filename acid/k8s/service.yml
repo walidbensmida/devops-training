@@ -3,10 +3,11 @@ kind: Service
 metadata:
   name: devops-training
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: devops-training
   ports:
     - protocol: TCP
       port: 8081
       targetPort: 8081
+      nodePort: 30081

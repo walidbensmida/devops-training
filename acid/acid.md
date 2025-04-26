@@ -130,25 +130,30 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: devops-training
+   name: devops-training
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: devops-training
-  template:
-    metadata:
-      labels:
-        app: devops-training
-    spec:
-      containers:
-        - name: devops-training
-          image: devops-training:latest
-          ports:
-            - containerPort: 8081
-          env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: "default"
+   replicas: 1
+   selector:
+      matchLabels:
+         app: devops-training
+   template:
+      metadata:
+         labels:
+            app: devops-training
+      spec:
+         containers:
+            - name: devops-training
+              image: walid/devops-training:latest
+              ports:
+                 - containerPort: 8081
+              env:
+                 - name: SPRING_PROFILES_ACTIVE
+                   value: "default"
+                 - name: VAULT_TOKEN
+                   valueFrom:
+                      secretKeyRef:
+                         name: vault-token-secret
+                         key: VAULT_TOKEN
 ```
 
 🧠 **Explication ligne par ligne :**
@@ -205,14 +210,14 @@ kind: Ingress
 metadata:
   name: devops-training-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
     - host: devops.local
       http:
         paths:
-          - path: /()(.*)
-            pathType: ImplementationSpecific
+          - path: /public
+            pathType: Prefix
             backend:
               service:
                 name: devops-training
@@ -220,22 +225,17 @@ spec:
                   number: 8081
 ```
 
-🧠 **Explication mise à jour :**
-
-- `rewrite-target: /$1` avec `path: /()(.*)` permet de rediriger `/` vers `/public`, `/private`, etc. sans erreur
-- On évite le `404` sur `/` en utilisant une réécriture dynamique compatible avec Spring Boot
-
 🧠 **Explication ligne par ligne :**
 
 - `apiVersion: networking.k8s.io/v1` → Version stable de l'API Kubernetes pour les objets Ingress.
 - `kind: Ingress` → Cette ressource gère le routage HTTP/HTTPS depuis l'extérieur du cluster vers les services internes.
 - `metadata.name` → Nom de l'Ingress, utilisé pour le référencer dans le cluster.
-- `annotations` → Métadonnées utilisées par le contrôleur Ingress (ici NGINX). La réécriture d'URL `rewrite-target: /` est nécessaire si ton app ne gère pas les chemins personnalisés (ex: `/devops`).
+- `annotations` → Métadonnées utilisées par le contrôleur Ingress (ici NGINX). La réécriture d'URL `rewrite-target: /` permet à l'app de ne pas avoir à gérer les sous-chemins.
 - `spec.rules` → Liste des règles de routage en fonction des hôtes (domaines).
 - `host: devops.local` → Nom de domaine simulé en local, doit être ajouté dans `/etc/hosts` pour pointer vers Minikube.
 - `http.paths` → Routes HTTP à rediriger.
-- `path: /` → Capture toutes les requêtes commençant par `/`.
-- `pathType: Prefix` → Type de correspondance du chemin (`Prefix` = tout ce qui commence par `/`).
+- `path: /public` → L’Ingress n’interceptera que les requêtes `/public`
+- `pathType: Prefix` → Type de correspondance du chemin (`Prefix` = tout ce qui commence par `/public`).
 - `backend.service.name` → Le nom du service Kubernetes vers lequel on redirige les requêtes.
 - `backend.service.port.number` → Le port utilisé par ce service (doit correspondre à `targetPort` dans le service).
 
@@ -252,6 +252,47 @@ spec:
 ---
 
 ### 🚀 Déploiement sur Minikube
+
+### 📚 Pourquoi `minikube service` permet d'accéder à l'application ?
+
+Dans Kubernetes, un `Service` de type `ClusterIP` est normalement **inaccessible depuis l'extérieur** du cluster. Minikube simule un vrai cluster, donc ton service est interne par défaut.
+
+Quand tu utilises :
+
+```bash
+minikube service devops-training
+```
+
+👉 Minikube crée **un tunnel temporaire** entre ton poste Windows et ton Service Kubernetes. Cela te fournit une URL locale du type :
+
+```
+http://127.0.0.1:65186/
+```
+
+💡 Cela permet de tester ton application **sans avoir besoin d'Ingress** ou de LoadBalancer compliqué en local.
+
+| Sans tunnel (`minikube service`) | Avec tunnel (`minikube service`) |
+|:---------------------------------|:--------------------------------:|
+| Pas d'accès au Service           | Accès local direct temporaire    |
+| Besoin d'Ingress ou LoadBalancer | Tunnel automatique               |
+| Complexité réseau                | Accès simple via 127.0.0.1        |
+
+⚠️ En production (ex: AWS, GCP), `minikube service` n'existe pas :
+- Il faut exposer l'application via un **Ingress Controller** ou un **Service de type LoadBalancer**.
+
+---
+
+#### 💡 Si l'application n'est pas accessible via http://devops.local/public
+
+Lance cette commande dans un terminal **en mode administrateur**, et laisse-la tourner :
+
+```bash
+minikube tunnel
+```
+
+> Cela permet de faire le pont entre ta machine et le réseau interne du cluster Kubernetes (ports 80/443 pour l'Ingress).
+
+---
 
 #### 1. Démarrer Minikube
 
@@ -300,6 +341,22 @@ kubectl get ingress
 #### 6. Accéder à l'application
 
 Dans un navigateur : [http://devops.local](http://devops.local)
+
+---
+
+### 📦 Création d'un Secret Kubernetes pour Vault
+
+Pour éviter de stocker le `VAULT_TOKEN` en clair dans `deployment.yaml`, on utilise un Secret Kubernetes.
+
+#### Commande pour créer le Secret :
+
+```bash
+kubectl create secret generic vault-token-secret --from-literal=VAULT_TOKEN=ton-vrai-token-ici
+```
+
+- Cela crée un secret nommé `vault-token-secret`.
+- Le `deployment.yaml` lit la variable d'environnement `VAULT_TOKEN` à partir de ce secret.
+- Sécurité renforcée : aucun token sensible n'est stocké dans Git.
 
 ---
 
