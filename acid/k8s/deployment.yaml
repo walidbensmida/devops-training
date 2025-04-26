@@ -15,14 +15,15 @@ spec:
       containers:
         - name: devops-training
           image: walidbensmida/devops-training:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8081
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "default"
-            - name: VAULT_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: vault-token-secret
-                  key: VAULT_TOKEN
+#            - name: VAULT_TOKEN
+#              valueFrom:
+#                secretKeyRef:
+#                  name: vault-token-secret
+#                  key: VAULT_TOKEN
 

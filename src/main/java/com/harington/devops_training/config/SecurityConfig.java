@@ -16,19 +16,15 @@ import org.springframework.security.config.Customizer;
 @Configuration
 public class SecurityConfig {
 
-    @Value("${app_login}")
-    private String appLogin;
-
-    @Value("${app_password}")
-    private String appPassword;
-
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers(
+                                "/actuator/health",  // ➡️ Permettre accès libre à l'endpoint health
+                                "/public"            // ➡️ Permettre accès libre au endpoint public
+                        ).permitAll()
+                        .anyRequest().authenticated() // ➡️ Les autres routes nécessitent authentification
                 )
                 .httpBasic(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable());
@@ -40,8 +36,8 @@ public class SecurityConfig {
     public UserDetailsService users() {
         return new InMemoryUserDetailsManager(
                 User.builder()
-                        .username(appLogin)
-                        .password(passwordEncoder().encode(appPassword))
+                        .username("admin")
+                        .password(passwordEncoder().encode("admin123"))
                         .roles("USER")
                         .build()
         );
@@ -53,8 +49,6 @@ public class SecurityConfig {
     }
     @PostConstruct
     public void init() {
-        System.out.println("Username from Vault: " + appLogin);
-        System.out.println("Password from Vault: " + appPassword);
+        System.out.println("Added actuator");
     }
-
 }

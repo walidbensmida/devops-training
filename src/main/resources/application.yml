@@ -4,15 +4,21 @@ server:
 spring:
   application:
     name: devops-training
-  config:
-    import: vault://
-  cloud:
-    vault:
-      uri: http://host.docker.internal:8200
-      token: ${VAULT_TOKEN}
-      kv:
-        enabled: true
-        backend: secret
-        application-name: app
-      ssl:
-        verify: false
+
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
+# Configuration Vault (si tu le réactives plus tard, mais peut être retiré pour l'instant)
+# vault:
+#   uri: http://127.0.0.1:8200
+#   token: ${VAULT_TOKEN}
+
+# Sécurité : peut être gérée dans le code Java (SecurityFilterChain)

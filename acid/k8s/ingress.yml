@@ -3,14 +3,14 @@ kind: Ingress
 metadata:
   name: devops-training-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: my-static-ip
 spec:
   rules:
-    - host: devops.local
-      http:
+    - http:
         paths:
-          - path: /public
-            pathType: Prefix
+          - path: /*
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: devops-training

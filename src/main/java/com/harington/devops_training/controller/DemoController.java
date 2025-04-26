@@ -8,8 +8,8 @@ import org.springframework.web.servlet.view.RedirectView;
 public class DemoController {
 
     @GetMapping("/")
-    public RedirectView home() {
-        return new RedirectView("/public");
+    public String home() {
+        return "Application OK";  // Réponse directe 200
     }
 
     @GetMapping("/public")

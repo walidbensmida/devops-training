@@ -253,6 +253,26 @@ spec:
 
 ### 🚀 Déploiement sur Minikube
 
+### ⚠️ Limitations connues sur Windows avec Minikube et Ingress
+
+Sur Windows, avec Minikube (driver Docker Desktop), il peut arriver que l'Ingress Controller fonctionne dans le cluster, mais que le tunnel réseau Windows bloque l'accès externe à `devops.local`.
+
+**Pourquoi ?**
+- Minikube utilise un réseau interne Docker.
+- Windows limite l'accès aux ports inférieurs à 1024 (80/443).
+- Firewall Windows ou Docker peut bloquer l'exposition du service.
+
+**Solutions :**
+- Utiliser `minikube service devops-training` pour accéder à l'application localement.
+- Continuer la formation sans bloquer, en simulant un accès NodePort.
+- Passer ensuite sur un vrai cluster cloud pour apprendre Ingress proprement (GKE, EKS...).
+
+➡️ Nous allons désormais continuer la formation en déployant sur **Google Kubernetes Engine (GKE)** pour reproduire un vrai environnement professionnel.
+
+---
+
+### 📚 Pourquoi `minikube service` permet d'accéder à l'application ?
+
 ### 📚 Pourquoi `minikube service` permet d'accéder à l'application ?
 
 Dans Kubernetes, un `Service` de type `ClusterIP` est normalement **inaccessible depuis l'extérieur** du cluster. Minikube simule un vrai cluster, donc ton service est interne par défaut.
