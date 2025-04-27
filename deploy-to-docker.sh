@@ -18,7 +18,11 @@ docker push $IMAGE_NAME:$VERSION
 
 echo "✅ Images poussées avec succès."
 
-echo "➡️ Redémarrage du déploiement Kubernetes..."
-kubectl rollout restart deployment devops-training
+#echo "➡️ Redémarrage du déploiement Kubernetes..."
+# 1. Connexion au cluster GKE
+#gcloud container clusters get-credentials devops-training-cluster \
+#  --zone europe-west1-b \
+#  --project devops-training-project-458011
+#kubectl rollout restart deployment devops-training
 
 echo "✅ Déploiement terminé avec l'image $VERSION !"

@@ -1,0 +1,13 @@
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: vault-backendconfig
+spec:
+  healthCheck:
+    type: HTTP
+    port: 8200
+    requestPath: /v1/sys/health
+    checkIntervalSec: 15
+    timeoutSec: 10
+    healthyThreshold: 1
+    unhealthyThreshold: 3

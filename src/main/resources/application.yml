@@ -4,6 +4,15 @@ server:
 spring:
   application:
     name: devops-training
+  cloud:
+    vault:
+      uri: http://vault:8200
+      authentication: TOKEN
+      token: ${VAULT_TOKEN}   # <= Ici : VAULT_TOKEN injecté comme ENV
+      kv:
+        enabled: true
+        backend: secret
+        default-context: application
 
 management:
   server:

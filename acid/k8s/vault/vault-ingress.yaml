@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vault-ingress
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: vault-static-ip
+    cloud.google.com/backend-config: '{"default": "vault-backendconfig"}'
+spec:
+  rules:
+    - host: vault.devops.local
+      http:
+        paths:
+          - path: /*
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: vault
+                port:
+                  number: 8200

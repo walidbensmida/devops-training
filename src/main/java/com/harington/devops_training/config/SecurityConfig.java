@@ -16,6 +16,9 @@ import org.springframework.security.config.Customizer;
 @Configuration
 public class SecurityConfig {
 
+    @Value("${db.password:defaultPwd}")
+    private String dbPassword;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -49,6 +52,6 @@ public class SecurityConfig {
     }
     @PostConstruct
     public void init() {
-        System.out.println("Added actuator");
+        System.out.println("Added actuator "+ dbPassword);
     }
 }
