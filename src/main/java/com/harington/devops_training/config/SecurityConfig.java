@@ -16,15 +16,12 @@ import org.springframework.security.config.Customizer;
 @Configuration
 public class SecurityConfig {
 
-    @Value("${db.password:defaultPwd}")
-    private String dbPassword;
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/actuator/health",  // ➡️ Permettre accès libre à l'endpoint health
+                                "/actuator/health","/actuator/env", // ➡️ Permettre accès libre à l'endpoint health
                                 "/public"            // ➡️ Permettre accès libre au endpoint public
                         ).permitAll()
                         .anyRequest().authenticated() // ➡️ Les autres routes nécessitent authentification
@@ -52,6 +49,6 @@ public class SecurityConfig {
     }
     @PostConstruct
     public void init() {
-        System.out.println("Added actuator "+ dbPassword);
+        System.out.println("Added command line runner");
     }
 }

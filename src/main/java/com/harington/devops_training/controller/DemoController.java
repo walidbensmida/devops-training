@@ -1,11 +1,15 @@
 package com.harington.devops_training.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 public class DemoController {
+
+    @Value("${db.password:defaultPwd}")
+    private String dbPassword;
 
     @GetMapping("/")
     public String home() {
@@ -14,7 +18,7 @@ public class DemoController {
 
     @GetMapping("/public")
     public String publicEndpoint() {
-        return "Ceci est public !";
+        return "Vault DB Password: " + dbPassword;
     }
 
     @GetMapping("/private")

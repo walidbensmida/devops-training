@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: devops-training
-          image: walidbensmida/devops-training:latest
+          image: walidbensmida/devops-training:v13
           imagePullPolicy: Always
           ports:
             - containerPort: 8081
