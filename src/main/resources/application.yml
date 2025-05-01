@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: devops-training
+  config:
+    import: vault://
   cloud:
     vault:
       uri: http://vault:8200
@@ -13,6 +15,10 @@ spring:
         enabled: true
         backend: secret
         default-context: application
+        profile-separator: "-"
+        version: 1
+      ssl:
+        skip-verify: true
 
 management:
   server:
@@ -20,14 +26,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health, env
   endpoint:
     health:
       show-details: always
 
-# Configuration Vault (si tu le réactives plus tard, mais peut être retiré pour l'instant)
-# vault:
-#   uri: http://127.0.0.1:8200
-#   token: ${VAULT_TOKEN}
-
-# Sécurité : peut être gérée dans le code Java (SecurityFilterChain)
+logging:
+  level:
+    org.springframework.vault: DEBUG
+    org.springframework.cloud.vault: DEBUG

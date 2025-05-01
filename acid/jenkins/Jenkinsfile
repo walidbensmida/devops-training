@@ -1,0 +1,25 @@
+pipeline {
+	agent any
+
+    environment {
+		REPOSITORY_URL = 'https://github.com/walidbensmida/devops-training.git'
+        KANIKO_YAML = 'acid/k8s/jenkins/kaniko-job.yaml'
+    }
+
+	stages {
+		stage('Git Checkout') {
+			steps {
+				git url: "${REPOSITORY_URL}", branch: 'main'
+      }
+    }
+
+    stage('Build & Push Image with Kaniko') {
+			steps {
+		sh 'kubectl delete job build-and-push-kaniko --ignore-not-found'
+        sh "kubectl apply -f ${KANIKO_YAML}"
+        sh 'kubectl wait --for=condition=complete --timeout=180s job/build-and-push-kaniko'
+        sh 'kubectl logs job/build-and-push-kaniko'
+      }
+    }
+  }
+}

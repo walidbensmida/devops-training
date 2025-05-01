@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: build-and-push-kaniko
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      containers:
+        - name: kaniko
+          image: gcr.io/kaniko-project/executor:latest
+          args:
+            - "--context=git://github.com/walidbensmida/devops-training.git#refs/heads/main"
+            - "--dockerfile=Dockerfile"  # ✅ chemin relatif à la racine du dépôt
+            - "--destination=walidbensmida/devops-training:latest"
+            - "--skip-tls-verify"
+          volumeMounts:
+            - name: kaniko-secret
+              mountPath: /kaniko/.docker
+      restartPolicy: Never
+      volumes:
+        - name: kaniko-secret
+          secret:
+            secretName: dockerhub-secret
+            items:
+              - key: .dockerconfigjson
+                path: config.json
