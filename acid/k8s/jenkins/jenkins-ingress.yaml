@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jenkins-ingress
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: "jenkins-static-ip"
+spec:
+  rules:
+    - host: jenkins.devops.local
+      http:
+        paths:
+          - path: /*
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: jenkins
+                port:
+                  number: 8080
