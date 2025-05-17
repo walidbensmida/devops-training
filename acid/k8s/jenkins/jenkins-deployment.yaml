@@ -17,6 +17,14 @@ spec:
       containers:
         - name: jenkins
           image: jenkins/jenkins:lts
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "2Gi"
           env:
             - name: CASC_JENKINS_CONFIG
               value: https://raw.githubusercontent.com/walidbensmida/devops-training/main/acid/jenkins/jenkins-casc.yaml
@@ -30,6 +38,18 @@ spec:
               mountPath: /var/jenkins_home
             - name: docker-sock
               mountPath: /var/run/docker.sock  # ✅ Monte le socket Docker ici
+          readinessProbe:
+            httpGet:
+              path: /login
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /login
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 20
       volumes:
         - name: jenkins-home
           persistentVolumeClaim:
@@ -37,3 +57,5 @@ spec:
         - name: docker-sock
           hostPath:
             path: /var/run/docker.sock   # ✅ Volume réel du socket Docker
+      imagePullSecrets:
+        - name: dockerhub-secret

@@ -16,6 +16,13 @@ spec:
         - name: devops-training
           image: walidbensmida/devops-training:v13
           imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
           ports:
             - containerPort: 8081
           env:
@@ -26,4 +33,16 @@ spec:
                 secretKeyRef:
                   name: vault-token-secret
                   key: VAULT_TOKEN
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 10
 

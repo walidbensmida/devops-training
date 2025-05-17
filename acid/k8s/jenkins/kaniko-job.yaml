@@ -4,6 +4,7 @@ metadata:
   name: build-and-push-kaniko
 spec:
   backoffLimit: 0
+  ttlSecondsAfterFinished: 600
   template:
     spec:
       containers:

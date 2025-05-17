@@ -1,18 +1,23 @@
+# CHANGEMENT PORTABILITÉ :
+# - Annotations GCP supprimées
+# - path corrigé de /* à / pour compatibilité Kubernetes standard
+# - pathType changé en Prefix
+# Pour rollback, remettre les annotations et l'ancien path/pathType si besoin.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: devops-training-ingress
   annotations:
-    kubernetes.io/ingress.class: "gce"
-    kubernetes.io/ingress.global-static-ip-name: my-static-ip
+    kubernetes.io/ingress.class: "nginx"
 spec:
   rules:
     - http:
         paths:
-          - path: /*
-            pathType: ImplementationSpecific
+          - path: /
+            pathType: Prefix
             backend:
               service:
                 name: devops-training
                 port:
                   number: 8081
+# FIN CHANGEMENT PORTABILITÉ

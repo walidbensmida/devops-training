@@ -1,10 +1,12 @@
 #!/bin/bash
 
+set -e  # Arrête le script en cas d'erreur
+
 echo "Déploiement de l'infrastructure Kubernetes..."
 
 # Jenkins Configuration as Code
-#kubectl apply -f ../jenkins/jenkins-casc.yaml
-#kubectl apply -f ../jenkins/jenkins-casc-secrets.yaml
+kubectl apply -f ../jenkins/jenkins-casc.yaml
+kubectl apply -f ../jenkins/jenkins-casc-secrets.yaml
 
 # Vault
 kubectl apply -f ../k8s/vault/vault-backendconfig.yaml

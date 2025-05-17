@@ -1,11 +1,12 @@
+# CHANGEMENT PORTABILITÉ :
+# - Annotation cloud.google.com/backend-config supprimée
+# Pour rollback, remettre l'annotation si besoin.
 apiVersion: v1
 kind: Service
 metadata:
   name: jenkins
   labels:
     app: jenkins
-  annotations:
-    cloud.google.com/backend-config: '{"default": "jenkins-backendconfig"}'
 spec:
   type: ClusterIP
   selector:
@@ -17,3 +18,4 @@ spec:
     - name: agent
       port: 50000
       targetPort: 50000
+# FIN CHANGEMENT PORTABILITÉ
