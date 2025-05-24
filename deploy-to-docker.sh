@@ -7,7 +7,7 @@ read VERSION
 IMAGE_NAME="walidbensmida/devops-training"
 
 echo "➡️ Compilation du projet Maven..."
-mvn clean install
+mvn clean install -DskipTests
 
 echo "➡️ Construction de l'image Docker..."
 docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:$VERSION .

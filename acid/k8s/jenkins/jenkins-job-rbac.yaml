@@ -1,0 +1,33 @@
+# RBAC (Role-Based Access Control) pour Jenkins
+# Ce fichier donne au service account 'jenkins' les droits nécessaires pour gérer les jobs Kubernetes dans le namespace 'default'.
+# Cela permet à Jenkins d'exécuter des commandes 'kubectl' sur les jobs (get, list, delete) sans erreur 'forbidden'.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: jenkins-job-manager
+  namespace: default
+rules:
+- apiGroups: ["batch"]  # Groupe d'API pour les jobs Kubernetes
+  resources: ["jobs"]   # Ressource ciblée : les jobs
+  verbs: ["get", "list", "delete", "create", "watch"]  # Actions autorisées : lire, lister, supprimer, créer, watcher
+- apiGroups: [""]  # Groupe d'API vide pour les ressources de base
+  resources: ["pods"]  # Ressource ciblée : les pods
+  verbs: ["get", "list"]  # Actions autorisées : lire, lister
+- apiGroups: [""]  # Groupe d'API vide pour les ressources de base
+  resources: ["pods/log"]  # Ressource ciblée : les logs des pods
+  verbs: ["get"]  # Action autorisée : lire les logs
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jenkins-job-manager-binding
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: jenkins  # Service account Jenkins qui reçoit les droits
+  namespace: default
+roleRef:
+  kind: Role
+  name: jenkins-job-manager  # Rôle défini ci-dessus
+  apiGroup: rbac.authorization.k8s.io

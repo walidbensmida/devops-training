@@ -27,6 +27,10 @@ Bienvenue ! Ce dossier contient tous les fichiers nécessaires pour déployer un
     - [Comment sauvegarder les données Jenkins ?](#comment-sauvegarder-les-données-jenkins-)
     - [Comment builder et déployer automatiquement mon application ?](#comment-builder-et-déployer-automatiquement-mon-application-)
     - [Où trouver plus d’aide ?](#où-trouver-plus-daide-)
+  - [Gestion des secrets (important)](#gestion-des-secrets-important)
+    - [1. jenkins-casc-secrets](#1-jenkins-casc-secrets)
+    - [2. dockerhub-secret](#2-dockerhub-secret)
+    - [Fichier d’exemple](#fichier-dexemple)
 
 ---
 
@@ -189,6 +193,64 @@ Les manifestes sont compatibles avec tout cluster Kubernetes standard (local, cl
 - Documentation Jenkins : https://www.jenkins.io/doc/
 - Documentation Vault : https://developer.hashicorp.com/vault/docs
 - Cherchez sur Stack Overflow ou GitHub Discussions.
+
+## Gestion des secrets (important)
+
+Pour que Jenkins et le pipeline fonctionnent, vous devez créer deux secrets Kubernetes :
+
+### 1. jenkins-casc-secrets
+Ce secret contient les identifiants d’admin Jenkins, vos identifiants Docker Hub et le kubeconfig encodé en base64.
+
+Variables attendues :
+- ADMIN_USER
+- ADMIN_PASSWORD
+- DOCKERHUB_USER
+- DOCKERHUB_PASSWORD
+- KUBECONFIG_BASE64
+
+Exemple de création (sous PowerShell ou Git Bash) :
+```sh
+kubectl create secret generic jenkins-casc-secrets \ 
+  --from-literal=ADMIN_USER=admin \ 
+  --from-literal=ADMIN_PASSWORD=admin123 \ 
+  --from-literal=DOCKERHUB_USER=ton_user_dockerhub \ 
+  --from-literal=DOCKERHUB_PASSWORD=ton_mot_de_passe_dockerhub \ 
+  --from-literal=KUBECONFIG_BASE64=base64_de_ton_kubeconfig
+```
+Pour obtenir le base64 de votre kubeconfig :
+```sh
+cat ~/.kube/config | base64 -w 0
+```
+(Sous Windows, utilisez Git Bash ou WSL, ou encodez le fichier avec un outil en ligne.)
+
+### 2. dockerhub-secret
+Ce secret permet à Kaniko (ou d’autres pods) de pousser des images sur Docker Hub.
+
+Variables attendues :
+- DOCKERHUB_USER
+- DOCKERHUB_PASSWORD
+- DOCKERHUB_EMAIL
+
+Exemple de création :
+```sh
+kubectl create secret docker-registry dockerhub-secret \ 
+  --docker-username=ton_user_dockerhub \ 
+  --docker-password=ton_mot_de_passe_dockerhub \ 
+  --docker-email=ton_email
+```
+
+### Fichier d’exemple
+Créez un fichier `secrets-example.env` (non versionné) pour garder une trace des variables à renseigner :
+```
+ADMIN_USER=admin
+ADMIN_PASSWORD=admin123
+DOCKERHUB_USER=ton_user_dockerhub
+DOCKERHUB_PASSWORD=ton_mot_de_passe_dockerhub
+KUBECONFIG_BASE64=base64_de_ton_kubeconfig
+DOCKERHUB_EMAIL=ton_email
+```
+
+> Ne versionnez jamais vos vrais secrets ! Utilisez ce fichier comme référence pour onboarder de nouveaux utilisateurs.
 
 ---
 

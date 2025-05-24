@@ -20,9 +20,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
+                        .requestMatchers("/",
                                 "/actuator/health","/actuator/env", // ➡️ Permettre accès libre à l'endpoint health
-                                "/public"            // ➡️ Permettre accès libre au endpoint public
+                                "/public","/welcome"        // ➡️ Permettre accès libre au endpoint public
                         ).permitAll()
                         .anyRequest().authenticated() // ➡️ Les autres routes nécessitent authentification
                 )

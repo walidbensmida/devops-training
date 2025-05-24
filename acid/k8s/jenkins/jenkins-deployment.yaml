@@ -1,3 +1,6 @@
+# Déploiement de Jenkins sur Kubernetes
+# Ce fichier définit le déploiement principal de Jenkins, incluant l'image personnalisée, les ressources, les volumes, les probes, et le service account pour les droits RBAC.
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -12,50 +15,48 @@ spec:
       labels:
         app: jenkins
     spec:
+      # serviceAccountName: jenkins  # Service account utilisé pour les droits RBAC
       securityContext:
-        fsGroup: 1000
+        fsGroup: 1000  # Assure que Jenkins peut écrire dans le volume partagé
       containers:
         - name: jenkins
-          image: jenkins/jenkins:lts
+          image: walidbensmida/jenkins-kubectl:latest  # Image Jenkins personnalisée avec kubectl
           imagePullPolicy: Always
-          resources:
-            requests:
-              cpu: "200m"
-              memory: "512Mi"
-            limits:
-              cpu: "1"
-              memory: "2Gi"
           env:
             - name: CASC_JENKINS_CONFIG
-              value: https://raw.githubusercontent.com/walidbensmida/devops-training/main/acid/jenkins/jenkins-casc.yaml
+              value: https://raw.githubusercontent.com/walidbensmida/devops-training/main/acid/jenkins/jenkins-casc.yaml  # Configuration as code Jenkins
           envFrom:
             - secretRef:
-                name: jenkins-casc-secrets
+                name: jenkins-casc-secrets  # Secrets pour la configuration Jenkins
           ports:
-            - containerPort: 8080
+            - containerPort: 8080  # Port principal Jenkins
           volumeMounts:
             - name: jenkins-home
-              mountPath: /var/jenkins_home
+              mountPath: /var/jenkins_home  # Stockage persistant Jenkins
             - name: docker-sock
-              mountPath: /var/run/docker.sock  # ✅ Monte le socket Docker ici
+              mountPath: /var/run/docker.sock  # Accès au socket Docker (pour build d'images)
           readinessProbe:
             httpGet:
               path: /login
               port: 8080
-            initialDelaySeconds: 20
+            initialDelaySeconds: 90  # Augmenté pour laisser plus de temps à Jenkins pour démarrer
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /login
               port: 8080
-            initialDelaySeconds: 60
+            initialDelaySeconds: 120  # Augmenté pour laisser plus de temps à Jenkins pour démarrer
+            timeoutSeconds: 10        # Augmenté pour permettre à Jenkins de répondre
             periodSeconds: 20
       volumes:
         - name: jenkins-home
           persistentVolumeClaim:
-            claimName: jenkins-pvc
+            claimName: jenkins-pvc  # PVC pour la persistance des données Jenkins
         - name: docker-sock
           hostPath:
-            path: /var/run/docker.sock   # ✅ Volume réel du socket Docker
+            path: /var/run/docker.sock   # Volume réel du socket Docker
       imagePullSecrets:
-        - name: dockerhub-secret
+        - name: dockerhub-secret  # Secret pour pull l'image privée si besoin
+
+
+

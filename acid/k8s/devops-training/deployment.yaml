@@ -14,15 +14,15 @@ spec:
     spec:
       containers:
         - name: devops-training
-          image: walidbensmida/devops-training:v13
+          image: walidbensmida/devops-training:v15
           imagePullPolicy: Always
           resources:
             requests:
-              cpu: "100m"
-              memory: "128Mi"
+              cpu: "50m"
+              memory: "64Mi"
             limits:
-              cpu: "500m"
-              memory: "512Mi"
+              cpu: "200m"
+              memory: "256Mi"
           ports:
             - containerPort: 8081
           env:
@@ -37,12 +37,23 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8081
-            initialDelaySeconds: 10
+            initialDelaySeconds: 90
             periodSeconds: 5
           livenessProbe:
             httpGet:
               path: /actuator/health
               port: 8081
-            initialDelaySeconds: 30
+            initialDelaySeconds: 120
             periodSeconds: 10
+        - name: busybox
+          image: busybox
+          command: ["sleep", "3600"]
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "16Mi"
+            limits:
+              cpu: "50m"
+              memory: "64Mi"
 

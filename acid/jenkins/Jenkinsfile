@@ -15,7 +15,7 @@ pipeline {
 
     stage('Build & Push Image with Kaniko') {
 			steps {
-		sh 'kubectl delete job build-and-push-kaniko --ignore-not-found'
+		    sh 'kubectl delete job build-and-push-kaniko --ignore-not-found'
         sh "kubectl apply -f ${KANIKO_YAML}"
         sh 'kubectl wait --for=condition=complete --timeout=180s job/build-and-push-kaniko'
         sh 'kubectl logs job/build-and-push-kaniko'
